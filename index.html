@@ -1,154 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BP Reading Data - Capture & Record</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BP Reading Data System</title>
   <style>
     :root {
-      --primary: #007bff;
-      --primary-hover: #0056b3;
+      --primary: #1976d2;
+      --primary-hover: #1565c0;
       --bg: #f4f6f9;
-      --card-bg: #ffffff;
-      --text: #333333;
-      --border: #dcdfe6;
+      --surface: #ffffff;
+      --text: #212121;
+      --text-muted: #666666;
+      --border: #dcdcdc;
+      --success: #2e7d32;
+      --error: #c62828;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg);
       color: var(--text);
-      margin: 0;
-      padding: 20px;
       display: flex;
       justify-content: center;
+      padding: 24px 16px;
     }
 
     .container {
-      background: var(--card-bg);
-      max-width: 500px;
+      background: var(--surface);
       width: 100%;
-      padding: 24px;
+      max-width: 520px;
       border-radius: 12px;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      padding: 28px;
     }
 
     h2 {
-      margin-top: 0;
+      margin-bottom: 6px;
+      font-size: 24px;
+      color: #1a237e;
       text-align: center;
-      color: #1e293b;
     }
 
-    .subtitle {
+    p.subtitle {
       text-align: center;
-      color: #64748b;
+      color: var(--text-muted);
+      font-size: 14px;
       margin-bottom: 24px;
-      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 15px;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
     }
 
     .upload-zone {
       border: 2px dashed var(--border);
       border-radius: 8px;
-      padding: 24px 16px;
+      padding: 20px;
       text-align: center;
       cursor: pointer;
-      margin-bottom: 20px;
       background: #fafafa;
-      transition: border-color 0.2s;
+      position: relative;
     }
 
     .upload-zone:hover {
+      background: #f0f4f8;
       border-color: var(--primary);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .preview-container {
+      display: none;
+      margin-top: 14px;
+      text-align: center;
     }
 
     .preview-img {
       max-width: 100%;
-      max-height: 220px;
+      max-height: 240px;
       border-radius: 8px;
-      margin-top: 12px;
-      display: none;
-      object-fit: contain;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    input[type="number"],
-    input[type="text"] {
-      width: 100%;
-      padding: 10px 12px;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 1rem;
-      transition: border-color 0.2s;
     }
 
-    input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .grid-row {
+    .grid-3 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
     }
 
-    button {
+    .btn {
       width: 100%;
       padding: 12px;
       background: var(--primary);
-      color: #ffffff;
+      color: #fff;
       border: none;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s;
     }
 
-    button:hover:not(:disabled) {
+    .btn:hover {
       background: var(--primary-hover);
     }
 
-    button:disabled {
-      background: #a0cbf7;
+    .btn:disabled {
+      background: #b0bec5;
       cursor: not-allowed;
     }
 
-    .status-msg {
+    .status-box {
       margin-top: 16px;
       padding: 12px;
       border-radius: 6px;
-      font-size: 0.9rem;
+      font-size: 14px;
       display: none;
     }
 
-    .status-msg.success {
-      background: #e6f4ea;
-      color: #137333;
+    .status-box.info {
+      background: #e3f2fd;
+      color: #0d47a1;
       display: block;
     }
 
-    .status-msg.error {
-      background: #fce8e6;
-      color: #c5221f;
+    .status-box.success {
+      background: #e8f5e9;
+      color: var(--success);
       display: block;
     }
 
-    .status-msg.info {
-      background: #e8f0fe;
-      color: #1a73e8;
+    .status-box.error {
+      background: #ffebee;
+      color: var(--error);
       display: block;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -156,111 +195,167 @@
 
   <div class="container">
     <h2>BP Reading Data</h2>
-    <p class="subtitle">Upload or take a photo of your BP monitor LCD screen</p>
+    <p class="subtitle">Snap or upload a photo of your blood pressure monitor</p>
 
-    <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-      <span id="uploadPrompt">📸 Tap to take photo or choose file</span>
-      <input type="file" id="fileInput" accept="image/*" capture="environment" style="display: none;" onchange="handleFileSelect(event)">
-      <img id="imagePreview" class="preview-img" alt="Preview">
-    </div>
-
-    <form id="bpForm" onsubmit="submitData(event)">
-      <div class="grid-row">
-        <div class="form-group">
-          <label for="sys">SYS (mmHg)</label>
-          <input type="number" id="sys" placeholder="Auto / Edit">
+    <form id="bpForm">
+      <!-- File Upload Zone -->
+      <div class="form-group">
+        <label>Upload / Capture Image</label>
+        <div class="upload-zone">
+          <input type="file" id="imageInput" accept="image/*" capture="environment" required />
+          <span id="uploadPrompt">📷 Click to upload or snap a photo</span>
         </div>
-        <div class="form-group">
-          <label for="dia">DIA (mmHg)</label>
-          <input type="number" id="dia" placeholder="Auto / Edit">
-        </div>
-        <div class="form-group">
-          <label for="pulse">Pulse (BPM)</label>
-          <input type="number" id="pulse" placeholder="Auto / Edit">
+        <div class="preview-container" id="previewContainer">
+          <img id="imagePreview" class="preview-img" alt="Device Preview" />
         </div>
       </div>
 
-      <button type="submit" id="submitBtn">Save & Sync to Sheet</button>
+      <!-- Readings (Auto-filled by OCR, user-editable) -->
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="sysInput">SYS (mmHg)</label>
+          <input type="number" id="sysInput" placeholder="120" required />
+        </div>
+        <div class="form-group">
+          <label for="diaInput">DIA (mmHg)</label>
+          <input type="number" id="diaInput" placeholder="80" required />
+        </div>
+        <div class="form-group">
+          <label for="pulseInput">Pulse (BPM)</label>
+          <input type="number" id="pulseInput" placeholder="72" required />
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn">Submit to Google Sheet</button>
     </form>
 
-    <div id="statusBox" class="status-msg"></div>
+    <div id="statusMessage" class="status-box"></div>
   </div>
 
   <script>
-    // PASTE YOUR DEPLOYED APPS SCRIPT WEB APP URL HERE:
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBQwmUQ26OHBgQhwGNQ7uWmrDCW8F5uPQymE-1_kcB7eJuv0kN28jMW23Y2tOh-l3w/exec";
+    // Set your deployed Apps Script Web App URL here:
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBQwmUQ26OHBgQhwGNQ7uWmrDCW8F5uPQymE-1_kcB7eJuv0kN28jMW23Y2tOh-l3w/exec';
 
-    let selectedBase64 = null;
-    let selectedMimeType = "image/jpeg";
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewContainer = document.getElementById('previewContainer');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const sysInput = document.getElementById('sysInput');
+    const diaInput = document.getElementById('diaInput');
+    const pulseInput = document.getElementById('pulseInput');
+    const bpForm = document.getElementById('bpForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusMessage = document.getElementById('statusMessage');
 
-    function showStatus(text, type) {
-      const box = document.getElementById("statusBox");
-      box.textContent = text;
-      box.className = "status-msg " + type;
-    }
+    let currentBase64 = null;
+    let currentMimeType = null;
 
-    function handleFileSelect(event) {
-      const file = event.target.files[0];
+    // Handle Image Selection and Automatic OCR processing
+    imageInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
       if (!file) return;
 
-      selectedMimeType = file.type || "image/jpeg";
+      currentMimeType = file.type || 'image/jpeg';
+      uploadPrompt.textContent = file.name;
+
+      // Display Preview
       const reader = new FileReader();
+      reader.onload = async (event) => {
+        const fullDataUrl = event.target.result;
+        imagePreview.src = fullDataUrl;
+        previewContainer.style.display = 'block';
 
-      reader.onload = function(e) {
-        selectedBase64 = e.target.result;
-        const img = document.getElementById("imagePreview");
-        img.src = selectedBase64;
-        img.style.display = "block";
-        document.getElementById("uploadPrompt").textContent = "Image selected (Tap to change)";
+        // Extract raw Base64 string
+        currentBase64 = fullDataUrl.split(',')[1];
+
+        // Trigger automatic OCR scan
+        runOcrScan(currentBase64, currentMimeType);
       };
-
       reader.readAsDataURL(file);
-    }
+    });
 
-    async function submitData(e) {
-      e.preventDefault();
-
-      if (!selectedBase64) {
-        showStatus("Please take or upload a photo first.", "error");
-        return;
-      }
-
-      const submitBtn = document.getElementById("submitBtn");
+    async function runOcrScan(base64Data, mimeType) {
+      showStatus('Scanning picture with OCR, please wait...', 'info', true);
       submitBtn.disabled = true;
-      showStatus("Uploading photo and running OCR extraction...", "info");
-
-      const payload = {
-        base64: selectedBase64,
-        mimeType: selectedMimeType,
-        sysOverride: document.getElementById("sys").value.trim() || null,
-        diaOverride: document.getElementById("dia").value.trim() || null,
-        pulseOverride: document.getElementById("pulse").value.trim() || null
-      };
 
       try {
         const response = await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'ocr',
+            base64Data: base64Data,
+            mimeType: mimeType
+          })
         });
 
         const res = await response.json();
+        if (res.status === 'success' && res.data) {
+          if (res.data.sys) sysInput.value = res.data.sys;
+          if (res.data.dia) diaInput.value = res.data.dia;
+          if (res.data.pulse) pulseInput.value = res.data.pulse;
 
-        if (res.status === "success") {
-          const d = res.data;
-          // Populate the fields with extracted values
-          document.getElementById("sys").value = d.systolic || "";
-          document.getElementById("dia").value = d.diastolic || "";
-          document.getElementById("pulse").value = d.pulse || "";
-
-          showStatus(`✓ Saved as #${d.no} on ${d.date} ${d.time}. SYS: ${d.systolic}, DIA: ${d.diastolic}, Pulse: ${d.pulse}`, "success");
+          showStatus('Values detected! Verify and click Submit.', 'success');
         } else {
-          showStatus("Error: " + res.message, "error");
+          showStatus('Could not auto-read text clearly. Please enter values manually.', 'info');
         }
       } catch (err) {
-        showStatus("Submission failed: " + err.message, "error");
+        showStatus('OCR processing timed out. Please input values manually.', 'info');
       } finally {
         submitBtn.disabled = false;
+      }
+    }
+
+    // Form Submission
+    bpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!currentBase64) {
+        showStatus('Please upload or capture a photo first.', 'error');
+        return;
+      }
+
+      showStatus('Uploading image and writing to Google Sheet...', 'info', true);
+      submitBtn.disabled = true;
+
+      try {
+        const payload = {
+          action: 'save',
+          base64Data: currentBase64,
+          mimeType: currentMimeType,
+          sys: sysInput.value,
+          dia: diaInput.value,
+          pulse: pulseInput.value
+        };
+
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          showStatus(`Saved! Record #${result.record.no} recorded for ${result.record.date} ${result.record.time}.`, 'success');
+          bpForm.reset();
+          previewContainer.style.display = 'none';
+          uploadPrompt.textContent = '📷 Click to upload or snap a photo';
+          currentBase64 = null;
+        } else {
+          showStatus('Failed to record data: ' + result.message, 'error');
+        }
+      } catch (err) {
+        showStatus('Submission error: ' + err.message, 'error');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    function showStatus(text, type, showSpinner = false) {
+      statusMessage.className = 'status-box ' + type;
+      if (showSpinner) {
+        statusMessage.innerHTML = '<span class="spinner"></span>' + text;
+      } else {
+        statusMessage.textContent = text;
       }
     }
   </script>

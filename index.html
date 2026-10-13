@@ -1,375 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BP Reading Data Form</title>
-  <!-- Tailwind CSS CDN for modern responsive UI -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Tesseract.js for on-device OCR reading of the BP monitor LCD -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BP Reading Data System</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #16a34a;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 580px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 24px; }
+    
+    h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; color: #0f172a; text-align: center; }
+    p.subtitle { font-size: 0.88rem; color: #64748b; text-align: center; margin-bottom: 20px; }
+
+    .upload-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      background: #f1f5f9;
+      cursor: pointer;
+      position: relative;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .upload-box:hover { border-color: var(--primary); }
+    .upload-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .preview-container { display: none; margin-top: 12px; text-align: center; }
+    .preview-container img { max-width: 100%; max-height: 240px; border-radius: 6px; border: 1px solid var(--border); object-fit: contain; }
+
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .field-group { display: flex; flex-direction: column; }
+    .field-group.full { grid-column: span 2; }
+    label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: #475569; margin-bottom: 4px; }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      background: #ffffff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[readonly] { background-color: #f1f5f9; color: #64748b; }
+    input:focus { border-color: var(--primary); }
+
+    .actions { margin-top: 24px; display: flex; gap: 10px; }
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-ocr { background-color: var(--primary); color: white; }
+    .btn-ocr:hover { background-color: var(--primary-hover); }
+    .btn-save { background-color: var(--success); color: white; display: none; }
+    .btn-save:hover { background-color: #15803d; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .status-msg { margin-top: 14px; font-size: 0.88rem; text-align: center; font-weight: 500; }
+    .status-msg.loading { color: var(--primary); }
+    .status-msg.success { color: var(--success); }
+    .status-msg.error { color: #dc2626; }
+  </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 p-4 sm:p-6">
-  <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-    <!-- Header -->
-    <header class="bg-indigo-600 px-6 py-5 text-white">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-xl font-bold tracking-tight">BP Reading Data Entry</h1>
-          <p class="text-xs text-indigo-100 mt-0.5">Capture picture, extract OCR, and log to Google Sheet</p>
-        </div>
-        <button id="configToggleBtn" class="text-xs bg-indigo-700 hover:bg-indigo-800 text-white px-2.5 py-1.5 rounded-lg border border-indigo-400">
-          ⚙️ Webhook URL
-        </button>
-      </div>
-    </header>
+<body>
 
-    <!-- Settings Panel (Stored in LocalStorage) -->
-    <div id="settingsPanel" class="hidden bg-indigo-50 border-b border-indigo-100 p-4 text-xs">
-      <label class="block font-semibold text-slate-700 mb-1">Google Apps Script Web App Deployment URL:</label>
-      <input type="url" id="gasWebhookUrl" placeholder="https://script.google.com/macros/s/.../exec"
-        class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
-      <div class="flex justify-between items-center mt-2">
-        <span class="text-slate-500">Saved in browser LocalStorage</span>
-        <button id="saveConfigBtn" class="bg-indigo-600 text-white px-3 py-1 rounded-md font-medium hover:bg-indigo-700">Save URL</button>
-      </div>
+<div class="container">
+  <h2>BP Reading Data</h2>
+  <p class="subtitle">Capture / upload blood pressure photo to read and log values</p>
+
+  <!-- Upload Area -->
+  <div class="upload-box" id="dropArea">
+    <input type="file" id="fileInput" accept="image/*" capture="environment">
+    <div id="uploadPrompt">
+      <span style="font-size: 1.8rem; display: block;">📷</span>
+      <strong>Tap to take a photo or select an image</strong>
+      <p style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">Supports JPG, PNG, WEBP</p>
     </div>
-
-    <!-- Main Form Content -->
-    <main class="p-6 space-y-5">
-      <!-- Camera / Image Upload Section -->
-      <section class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-indigo-400 transition bg-slate-50">
-        <input type="file" id="imageInput" accept="image/*" capture="environment" class="hidden" />
-        <div id="dropZone" class="cursor-pointer space-y-2">
-          <svg class="mx-auto h-10 w-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <div class="text-sm font-medium text-slate-700">
-            <span class="text-indigo-600 hover:underline">Take photo</span> or select picture
-          </div>
-          <p class="text-xs text-slate-500">Supports direct photo of Blood Pressure Monitor screen</p>
-        </div>
-
-        <!-- Preview & Extraction Indicator -->
-        <div id="previewContainer" class="hidden mt-3 space-y-3">
-          <img id="imagePreview" src="#" alt="BP Device Preview" class="max-h-56 mx-auto rounded-lg shadow-sm border border-slate-200" />
-          <div id="ocrStatus" class="text-xs text-indigo-700 font-medium animate-pulse"></div>
-        </div>
-      </section>
-
-      <!-- Data Fields Form -->
-      <form id="bpForm" class="space-y-4">
-        <!-- Sequence No, Date & Time -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">No (Auto Seq)</label>
-            <input type="text" id="seqNo" readonly value="Auto" class="w-full bg-slate-100 text-slate-500 px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Date (dd/mm/yyyy)</label>
-            <input type="text" id="submitDate" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Time (hh:mm AM/PM)</label>
-            <input type="text" id="submitTime" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500" />
-          </div>
-        </div>
-
-        <!-- Readings (SYS, DIA, PULSE) -->
-        <div class="grid grid-cols-3 gap-3">
-          <div class="bg-rose-50 border border-rose-200 rounded-xl p-3">
-            <label class="block text-xs font-bold text-rose-700 mb-1">Systolic</label>
-            <span class="text-[10px] text-rose-500 block -mt-1 mb-1">mmHg (SYS)</span>
-            <input type="number" id="sysInput" required placeholder="e.g. 130"
-              class="w-full px-2 py-1.5 bg-white border border-rose-300 rounded-md font-bold text-rose-900 text-lg focus:outline-none focus:ring-2 focus:ring-rose-500" />
-          </div>
-
-          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
-            <label class="block text-xs font-bold text-amber-700 mb-1">Diastolic</label>
-            <span class="text-[10px] text-amber-500 block -mt-1 mb-1">mmHg (DIA)</span>
-            <input type="number" id="diaInput" required placeholder="e.g. 85"
-              class="w-full px-2 py-1.5 bg-white border border-amber-300 rounded-md font-bold text-amber-900 text-lg focus:outline-none focus:ring-2 focus:ring-amber-500" />
-          </div>
-
-          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
-            <label class="block text-xs font-bold text-emerald-700 mb-1">Pulse</label>
-            <span class="text-[10px] text-emerald-500 block -mt-1 mb-1">BPM / min</span>
-            <input type="number" id="pulseInput" required placeholder="e.g. 72"
-              class="w-full px-2 py-1.5 bg-white border border-emerald-300 rounded-md font-bold text-emerald-900 text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-          </div>
-        </div>
-
-        <!-- Uploaded Picture URL / Status -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Uploaded picture URL</label>
-          <input type="text" id="picUrlInput" readonly placeholder="Will be populated automatically after Drive upload"
-            class="w-full bg-slate-100 text-slate-500 px-3 py-2 rounded-lg border border-slate-200 text-xs" />
-        </div>
-
-        <!-- Notification Banner -->
-        <div id="statusMessage" class="hidden p-3 rounded-lg text-sm text-center"></div>
-
-        <!-- Submit Button -->
-        <button type="submit" id="submitBtn"
-          class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition disabled:opacity-50">
-          Save to Google Sheet
-        </button>
-      </form>
-    </main>
+    <div class="preview-container" id="previewContainer">
+      <img id="imagePreview" alt="BP Preview">
+    </div>
   </div>
 
-  <script>
-    // --- Local Storage Management ---
-    const STORAGE_KEY_WEBHOOK = "bp_webhook_url";
-    const STORAGE_KEY_FORM_DRAFT = "bp_form_draft";
+  <button type="button" class="btn-ocr" id="btnOcr" disabled>Extract Readings (OCR)</button>
 
-    const configToggleBtn = document.getElementById("configToggleBtn");
-    const settingsPanel = document.getElementById("settingsPanel");
-    const gasWebhookUrlInput = document.getElementById("gasWebhookUrl");
-    const saveConfigBtn = document.getElementById("saveConfigBtn");
+  <!-- Form Fields -->
+  <div class="field-grid">
+    <div class="field-group">
+      <label for="fSys">Systolic (mmHg)</label>
+      <input type="number" id="fSys" placeholder="e.g. 120">
+    </div>
+    <div class="field-group">
+      <label for="fDia">Diastolic (mmHg)</label>
+      <input type="number" id="fDia" placeholder="e.g. 80">
+    </div>
+    <div class="field-group">
+      <label for="fPulse">Pulse (BPM)</label>
+      <input type="number" id="fPulse" placeholder="e.g. 72">
+    </div>
+    <div class="field-group">
+      <label for="fNo">No (Auto)</label>
+      <input type="text" id="fNo" value="Auto on submit" readonly>
+    </div>
+    <div class="field-group">
+      <label for="fDate">Date (dd/mm/yyyy)</label>
+      <input type="text" id="fDate" readonly>
+    </div>
+    <div class="field-group">
+      <label for="fTime">Time (hh:mm AM/PM)</label>
+      <input type="text" id="fTime" readonly>
+    </div>
+    <div class="field-group full">
+      <label for="fUrl">Uploaded Picture URL</label>
+      <input type="text" id="fUrl" placeholder="Generated after saving" readonly>
+    </div>
+  </div>
 
-    const dropZone = document.getElementById("dropZone");
-    const imageInput = document.getElementById("imageInput");
-    const previewContainer = document.getElementById("previewContainer");
-    const imagePreview = document.getElementById("imagePreview");
-    const ocrStatus = document.getElementById("ocrStatus");
+  <div class="actions">
+    <button type="button" class="btn-save" id="btnSave">Save to Google Sheet</button>
+  </div>
 
-    const bpForm = document.getElementById("bpForm");
-    const seqNo = document.getElementById("seqNo");
-    const submitDate = document.getElementById("submitDate");
-    const submitTime = document.getElementById("submitTime");
-    const sysInput = document.getElementById("sysInput");
-    const diaInput = document.getElementById("diaInput");
-    const pulseInput = document.getElementById("pulseInput");
-    const picUrlInput = document.getElementById("picUrlInput");
-    const statusMessage = document.getElementById("statusMessage");
-    const submitBtn = document.getElementById("submitBtn");
+  <div class="status-msg" id="statusMessage"></div>
+</div>
 
-    let currentBase64Image = "";
-    let currentFileName = "";
-    let currentMimeType = "";
+<script>
+  // ==========================================
+  // CONFIGURATION: Replace with your Web App URL
+  // ==========================================
+  const APPS_SCRIPT_WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
 
-    // Initialize Webhook URL from Local Storage
-    const savedUrl = localStorage.getItem(STORAGE_KEY_WEBHOOK);
-    if (savedUrl) {
-      gasWebhookUrlInput.value = savedUrl;
-    } else {
-      settingsPanel.classList.remove("hidden");
-    }
+  let rawBase64 = "";
+  let mimeType = "";
 
-    configToggleBtn.addEventListener("click", () => {
-      settingsPanel.classList.toggle("hidden");
-    });
+  const fileInput = document.getElementById('fileInput');
+  const previewContainer = document.getElementById('previewContainer');
+  const imagePreview = document.getElementById('imagePreview');
+  const uploadPrompt = document.getElementById('uploadPrompt');
+  const btnOcr = document.getElementById('btnOcr');
+  const btnSave = document.getElementById('btnSave');
+  const statusMessage = document.getElementById('statusMessage');
 
-    saveConfigBtn.addEventListener("click", () => {
-      localStorage.setItem(STORAGE_KEY_WEBHOOK, gasWebhookUrlInput.value.trim());
-      alert("Webhook URL successfully saved in LocalStorage!");
-      settingsPanel.classList.add("hidden");
-      fetchNextSequence();
-    });
+  // Set real-time clock preview
+  function updateDateTime() {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    document.getElementById('fDate').value = `${day}/${month}/${year}`;
 
-    // Populate Current Date (dd/mm/yyyy) & Time (hh:mm AM/PM)
-    function setDateTimeNow() {
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, '0');
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const yyyy = now.getFullYear();
-      submitDate.value = `${dd}/${mm}/${yyyy}`;
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? String(hours).padStart(2, '0') : '12';
+    document.getElementById('fTime').value = `${hours}:${minutes} ${ampm}`;
+  }
+  updateDateTime();
+  setInterval(updateDateTime, 30000);
 
-      let hours = now.getHours();
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12 || 12;
-      const hh = String(hours).padStart(2, '0');
-      submitTime.value = `${hh}:${minutes} ${ampm}`;
-    }
-    setDateTimeNow();
+  // Handle Image Selection
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-    // Fetch Next Sequence from Google Sheet via Apps Script
-    async function fetchNextSequence() {
-      const endpoint = gasWebhookUrlInput.value.trim();
-      if (!endpoint) return;
+    mimeType = file.type || 'image/jpeg';
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const dataUrl = event.target.result;
+      imagePreview.src = dataUrl;
+      previewContainer.style.display = 'block';
+      uploadPrompt.style.display = 'none';
 
-      try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "getNextSequence" })
-        });
-        const data = await res.json();
-        if (data && data.success) {
-          seqNo.value = data.nextSeq;
-        }
-      } catch (e) {
-        console.warn("Could not fetch sequence immediately, will auto-resolve on write:", e);
-      }
-    }
-    fetchNextSequence();
+      // Extract raw base64 string
+      rawBase64 = dataUrl.split(',')[1];
+      btnOcr.disabled = false;
+      btnSave.style.display = 'none';
+      setStatus('');
+    };
+    reader.readAsDataURL(file);
+  });
 
-    // File selection trigger
-    dropZone.addEventListener("click", () => imageInput.click());
+  // Extract Readings via Apps Script OCR
+  btnOcr.addEventListener('click', async function() {
+    if (!rawBase64) return;
 
-    imageInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+    setStatus('Scanning image using OCR... Please wait.', 'loading');
+    btnOcr.disabled = true;
 
-      currentFileName = file.name;
-      currentMimeType = file.type;
-
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        currentBase64Image = event.target.result;
-        imagePreview.src = currentBase64Image;
-        previewContainer.classList.remove("hidden");
-        ocrStatus.innerText = "🔍 Reading image text using OCR...";
-        
-        await parseBpImageWithOcr(currentBase64Image);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Client-side OCR Processing and Parsing Logic
-    async function parseBpImageWithOcr(imageDataUri) {
-      try {
-        const { data: { text } } = await Tesseract.recognize(imageDataUri, 'eng', {
-          logger: m => {
-            if (m.status === 'recognizing text') {
-              ocrStatus.innerText = `Recognizing text: ${Math.round(m.progress * 100)}%`;
-            }
-          }
-        });
-
-        ocrStatus.innerText = "Extraction complete! Please verify values below.";
-        extractBpValues(text);
-      } catch (err) {
-        console.error("OCR failed:", err);
-        ocrStatus.innerText = "OCR could not detect numbers clearly. Please key in readings manually.";
-      }
-    }
-
-    // Heuristics parser for typical BP monitors (SYS, DIA, PULSE)
-    function extractBpValues(rawText) {
-      const cleaned = rawText.replace(/\r/g, '\n');
-      const lines = cleaned.split('\n').map(l => l.trim()).filter(Boolean);
-
-      // Extract all numeric tokens (2 to 3 digits)
-      const numberMatches = cleaned.match(/\b\d{2,3}\b/g);
-      const numbers = numberMatches ? numberMatches.map(Number) : [];
-
-      let foundSys = null;
-      let foundDia = null;
-      let foundPulse = null;
-
-      // 1. Keyword-based matching
-      lines.forEach(line => {
-        const upper = line.toUpperCase();
-        const num = line.match(/\b\d{2,3}\b/);
-        if (!num) return;
-        const val = parseInt(num[0], 10);
-
-        if ((upper.includes("SYS") || upper.includes("MMHG")) && !foundSys && val >= 70 && val <= 240) {
-          foundSys = val;
-        } else if ((upper.includes("DIA") || upper.includes("MIN")) && !foundDia && val >= 40 && val <= 140) {
-          foundDia = val;
-        } else if ((upper.includes("PUL") || upper.includes("BPM") || upper.includes("HEART")) && !foundPulse && val >= 40 && val <= 180) {
-          foundPulse = val;
-        }
+    try {
+      const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'ocr',
+          base64Data: rawBase64,
+          mimeType: mimeType
+        })
       });
 
-      // 2. Fallback heuristic: Typical BP monitor displays [SYS, DIA, PULSE] vertically in descending range
-      if ((!foundSys || !foundDia) && numbers.length >= 2) {
-        // Look for typical systolic (> 95) followed by diastolic (50-100)
-        for (let i = 0; i < numbers.length; i++) {
-          const val1 = numbers[i];
-          const val2 = numbers[i + 1];
-          const val3 = numbers[i + 2];
+      const res = await response.json();
+      if (res.status === 'success') {
+        document.getElementById('fSys').value = res.data.sys || '';
+        document.getElementById('fDia').value = res.data.dia || '';
+        document.getElementById('fPulse').value = res.data.pulse || '';
 
-          if (!foundSys && val1 >= 90 && val1 <= 230) {
-            foundSys = val1;
-            if (val2 && val2 >= 45 && val2 <= 130 && val2 < val1) {
-              foundDia = val2;
-              if (val3 && val3 >= 45 && val3 <= 160) {
-                foundPulse = val3;
-              }
-              break;
-            }
-          }
-        }
+        setStatus('Values extracted! Check and adjust numbers if needed before saving.', 'success');
+        btnSave.style.display = 'block';
+      } else {
+        setStatus('OCR Error: ' + res.message, 'error');
       }
+    } catch (err) {
+      setStatus('Network or endpoint error: ' + err.message, 'error');
+    } finally {
+      btnOcr.disabled = false;
+    }
+  });
 
-      // Populate input elements if found
-      if (foundSys) sysInput.value = foundSys;
-      if (foundDia) diaInput.value = foundDia;
-      if (foundPulse) pulseInput.value = foundPulse;
+  // Save to Google Sheet & Drive
+  btnSave.addEventListener('click', async function() {
+    const sys = document.getElementById('fSys').value;
+    const dia = document.getElementById('fDia').value;
+    const pulse = document.getElementById('fPulse').value;
+
+    if (!sys || !dia || !pulse) {
+      setStatus('Please enter values for Systolic, Diastolic, and Pulse.', 'error');
+      return;
     }
 
-    // Submit Handler
-    bpForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    setStatus('Uploading picture to Drive and appending row to Sheet...', 'loading');
+    btnSave.disabled = true;
 
-      const webhookUrl = gasWebhookUrlInput.value.trim();
-      if (!webhookUrl) {
-        alert("Please set your Google Apps Script Web App URL first via the top-right button.");
-        settingsPanel.classList.remove("hidden");
-        return;
+    try {
+      const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'save',
+          base64Data: rawBase64,
+          mimeType: mimeType,
+          sys: sys,
+          dia: dia,
+          pulse: pulse
+        })
+      });
+
+      const res = await response.json();
+      if (res.status === 'success') {
+        document.getElementById('fNo').value = res.data.no;
+        document.getElementById('fDate').value = res.data.date;
+        document.getElementById('fTime').value = res.data.time;
+        document.getElementById('fUrl').value = res.data.fileUrl;
+
+        setStatus(`Saved successfully as Entry #${res.data.no}!`, 'success');
+        btnSave.style.display = 'none';
+      } else {
+        setStatus('Save Error: ' + res.message, 'error');
       }
+    } catch (err) {
+      setStatus('Save failed: ' + err.message, 'error');
+    } finally {
+      btnSave.disabled = false;
+    }
+  });
 
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Submitting to Google Sheet...";
-      statusMessage.className = "p-3 rounded-lg text-sm text-center bg-blue-50 text-blue-700 block";
-      statusMessage.innerText = "Uploading picture to Google Drive and saving row...";
-
-      const payload = {
-        action: "submitData",
-        date: submitDate.value,
-        time: submitTime.value,
-        sys: sysInput.value,
-        dia: diaInput.value,
-        pulse: pulseInput.value,
-        base64Image: currentBase64Image,
-        fileName: currentFileName || `BP_${Date.now()}.jpg`,
-        mimeType: currentMimeType || "image/jpeg"
-      };
-
-      try {
-        const response = await fetch(webhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
-        });
-
-        const res = await response.json();
-        if (res.success) {
-          statusMessage.className = "p-3 rounded-lg text-sm text-center bg-emerald-50 text-emerald-800 block";
-          statusMessage.innerHTML = `✅ <strong>Recorded successfully!</strong> Assigned No: <b>${res.seq}</b>`;
-          if (res.fileUrl) {
-            picUrlInput.value = res.fileUrl;
-          }
-
-          // Reset inputs for next reading
-          setTimeout(() => {
-            sysInput.value = "";
-            diaInput.value = "";
-            pulseInput.value = "";
-            previewContainer.classList.add("hidden");
-            imageInput.value = "";
-            currentBase64Image = "";
-            setDateTimeNow();
-            fetchNextSequence();
-          }, 3000);
-        } else {
-          throw new Error(res.error || "Server responded with failure");
-        }
-      } catch (err) {
-        console.error(err);
-        statusMessage.className = "p-3 rounded-lg text-sm text-center bg-rose-50 text-rose-800 block";
-        statusMessage.innerText = "❌ Error saving record: " + err.message;
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Save to Google Sheet";
-      }
-    });
-  </script>
+  function setStatus(text, type = '') {
+    statusMessage.textContent = text;
+    statusMessage.className = 'status-msg ' + type;
+  }
+</script>
 </body>
 </html>

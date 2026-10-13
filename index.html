@@ -2,19 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BP Reading Data System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BP Reading Data Entry</title>
+  
+  <!-- Tesseract.js CDN for Client-side OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
   <style>
     :root {
-      --primary: #1976d2;
-      --primary-hover: #1565c0;
-      --bg: #f4f6f9;
-      --surface: #ffffff;
-      --text: #212121;
-      --text-muted: #666666;
-      --border: #dcdcdc;
-      --success: #2e7d32;
-      --error: #c62828;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 12px;
     }
 
     * {
@@ -26,338 +32,624 @@
 
     body {
       background-color: var(--bg);
-      color: var(--text);
+      color: var(--text-main);
+      padding: 24px 16px;
       display: flex;
       justify-content: center;
-      padding: 24px 16px;
     }
 
     .container {
-      background: var(--surface);
       width: 100%;
-      max-width: 520px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      max-width: 680px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
       padding: 28px;
     }
 
-    h2 {
-      margin-bottom: 6px;
-      font-size: 24px;
-      color: #1a237e;
-      text-align: center;
-    }
-
-    p.subtitle {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 14px;
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
     }
 
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: #333;
-    }
-
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 15px;
-      outline: none;
-      transition: border 0.2s;
-    }
-
-    input:focus {
-      border-color: var(--primary);
-    }
-
-    .upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      background: #fafafa;
-      position: relative;
-    }
-
-    .upload-zone:hover {
-      background: #f0f4f8;
-      border-color: var(--primary);
-    }
-
-    .upload-zone input[type="file"] {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    .preview-container {
-      display: none;
-      margin-top: 14px;
-      text-align: center;
-    }
-
-    .preview-img {
-      max-width: 100%;
-      max-height: 240px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
       gap: 12px;
     }
 
-    .btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 15px;
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .btn-sheet {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
       font-weight: 600;
-      cursor: pointer;
+      color: #0f766e;
+      background: #ccfbf1;
+      border-radius: 8px;
+      text-decoration: none;
       transition: background 0.2s;
     }
 
-    .btn:hover {
-      background: var(--primary-hover);
+    .btn-sheet:hover {
+      background: #99f6e4;
     }
 
-    .btn:disabled {
-      background: #b0bec5;
-      cursor: not-allowed;
+    /* Upload Area */
+    .upload-card {
+      border: 2px dashed var(--primary);
+      background: #f0f9ff;
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
     }
 
-    .status-box {
-      margin-top: 16px;
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 14px;
+    .upload-card:hover {
+      background: #e0f2fe;
+    }
+
+    .upload-card input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+    }
+
+    .upload-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .upload-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Preview & OCR Status */
+    .preview-container {
       display: none;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #000;
+      position: relative;
     }
 
-    .status-box.info {
-      background: #e3f2fd;
-      color: #0d47a1;
+    .preview-container img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
       display: block;
     }
 
-    .status-box.success {
-      background: #e8f5e9;
-      color: var(--success);
-      display: block;
-    }
-
-    .status-box.error {
-      background: #ffebee;
-      color: var(--error);
-      display: block;
+    .ocr-status {
+      display: none;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 8px;
     }
 
     .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid currentColor;
-      border-right-color: transparent;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #0284c7;
+      border-top-color: transparent;
       border-radius: 50%;
-      animation: spin 0.75s linear infinite;
-      margin-right: 6px;
-      vertical-align: middle;
+      animation: spin 0.8s linear infinite;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    /* Form Fields Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text-muted);
+    }
+
+    input {
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      transition: border 0.2s;
+      background: #fff;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    input[readonly] {
+      background: #f1f5f9;
+      color: #475569;
+      cursor: not-allowed;
+    }
+
+    .reading-highlight {
+      border-color: #38bdf8;
+      background-color: #f8fafc;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #0369a1;
+    }
+
+    /* Actions */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--primary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .submit-btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    /* Notification Box */
+    .alert {
+      display: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-top: 16px;
+    }
+
+    .alert.success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .alert.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    @media (max-width: 500px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.full {
+        grid-column: span 1;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h2>BP Reading Data</h2>
-    <p class="subtitle">Snap or upload a photo of your blood pressure monitor</p>
-
-    <form id="bpForm">
-      <!-- File Upload Zone -->
-      <div class="form-group">
-        <label>Upload / Capture Image</label>
-        <div class="upload-zone">
-          <input type="file" id="imageInput" accept="image/*" capture="environment" required />
-          <span id="uploadPrompt">📷 Click to upload or snap a photo</span>
-        </div>
-        <div class="preview-container" id="previewContainer">
-          <img id="imagePreview" class="preview-img" alt="Device Preview" />
-        </div>
-      </div>
-
-      <!-- Readings (Auto-filled by OCR, user-editable) -->
-      <div class="grid-3">
-        <div class="form-group">
-          <label for="sysInput">SYS (mmHg)</label>
-          <input type="number" id="sysInput" placeholder="120" required />
-        </div>
-        <div class="form-group">
-          <label for="diaInput">DIA (mmHg)</label>
-          <input type="number" id="diaInput" placeholder="80" required />
-        </div>
-        <div class="form-group">
-          <label for="pulseInput">Pulse (BPM)</label>
-          <input type="number" id="pulseInput" placeholder="72" required />
-        </div>
-      </div>
-
-      <button type="submit" id="submitBtn" class="btn">Submit to Google Sheet</button>
-    </form>
-
-    <div id="statusMessage" class="status-box"></div>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <h1>🩺 BP Reading Data Entry</h1>
+      <!-- Link to Google Sheet -->
+      <a href="YOUR_SPREADSHEET_URL" target="_blank" rel="noopener noreferrer" class="btn-sheet" id="sheetLink">
+        📊 Open Google Sheet
+      </a>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-muted);">
+      Capture or upload your blood pressure monitor photo. The OCR automatically extracts SYS, DIA, and Pulse readings.
+    </p>
   </div>
 
-  <script>
-    // Set your deployed Apps Script Web App URL here:
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBQwmUQ26OHBgQhwGNQ7uWmrDCW8F5uPQymE-1_kcB7eJuv0kN28jMW23Y2tOh-l3w/exec';
+  <!-- Upload Area -->
+  <div class="upload-card">
+    <input type="file" id="imageInput" accept="image/*" capture="environment" />
+    <div class="upload-icon">📷</div>
+    <div class="upload-text">Take Photo or Upload Picture</div>
+    <div class="upload-sub">Supports camera capture on mobile or JPG/PNG image</div>
+  </div>
 
-    const imageInput = document.getElementById('imageInput');
-    const imagePreview = document.getElementById('imagePreview');
-    const previewContainer = document.getElementById('previewContainer');
-    const uploadPrompt = document.getElementById('uploadPrompt');
-    const sysInput = document.getElementById('sysInput');
-    const diaInput = document.getElementById('diaInput');
-    const pulseInput = document.getElementById('pulseInput');
-    const bpForm = document.getElementById('bpForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const statusMessage = document.getElementById('statusMessage');
+  <!-- Image Preview -->
+  <div class="preview-container" id="previewContainer">
+    <img id="imagePreview" alt="Blood Pressure Monitor" />
+  </div>
 
-    let currentBase64 = null;
-    let currentMimeType = null;
+  <!-- OCR Scanning Status -->
+  <div class="ocr-status" id="ocrStatus">
+    <div class="spinner"></div>
+    <span id="ocrStatusText">Reading text from monitor picture...</span>
+  </div>
 
-    // Handle Image Selection and Automatic OCR processing
-    imageInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+  <!-- Form Details -->
+  <form id="bpForm">
+    <div class="form-grid">
+      <!-- Auto Sequence No -->
+      <div class="form-group">
+        <label for="noField">No (Auto Sequence)</label>
+        <input type="text" id="noField" readonly placeholder="Loading..." />
+      </div>
 
-      currentMimeType = file.type || 'image/jpeg';
-      uploadPrompt.textContent = file.name;
+      <!-- Date (dd/mm/yyyy) -->
+      <div class="form-group">
+        <label for="dateField">Date (dd/mm/yyyy)</label>
+        <input type="text" id="dateField" required />
+      </div>
 
-      // Display Preview
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const fullDataUrl = event.target.result;
-        imagePreview.src = fullDataUrl;
-        previewContainer.style.display = 'block';
+      <!-- Time (hh:mm AM/PM) -->
+      <div class="form-group">
+        <label for="timeField">Time (hh:mm AM/PM)</label>
+        <input type="text" id="timeField" required />
+      </div>
 
-        // Extract raw Base64 string
-        currentBase64 = fullDataUrl.split(',')[1];
+      <!-- Systolic (mmHg) -->
+      <div class="form-group">
+        <label for="sysField">Systolic (mmHg)</label>
+        <input type="number" id="sysField" class="reading-highlight" placeholder="e.g. 130" required />
+      </div>
 
-        // Trigger automatic OCR scan
-        runOcrScan(currentBase64, currentMimeType);
-      };
-      reader.readAsDataURL(file);
-    });
+      <!-- Diastolic (mmHg) -->
+      <div class="form-group">
+        <label for="diaField">Diastolic (mmHg)</label>
+        <input type="number" id="diaField" class="reading-highlight" placeholder="e.g. 81" required />
+      </div>
 
-    async function runOcrScan(base64Data, mimeType) {
-      showStatus('Scanning picture with OCR, please wait...', 'info', true);
-      submitBtn.disabled = true;
+      <!-- Pulse (BPM) -->
+      <div class="form-group">
+        <label for="pulseField">Pulse (BPM)</label>
+        <input type="number" id="pulseField" class="reading-highlight" placeholder="e.g. 86" required />
+      </div>
 
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'ocr',
-            base64Data: base64Data,
-            mimeType: mimeType
-          })
-        });
+      <!-- Uploaded Picture URL -->
+      <div class="form-group full">
+        <label for="urlField">Uploaded Picture URL</label>
+        <input type="text" id="urlField" readonly placeholder="Will be populated once submitted to Google Drive" />
+      </div>
+    </div>
 
-        const res = await response.json();
-        if (res.status === 'success' && res.data) {
-          if (res.data.sys) sysInput.value = res.data.sys;
-          if (res.data.dia) diaInput.value = res.data.dia;
-          if (res.data.pulse) pulseInput.value = res.data.pulse;
+    <!-- Submit Button -->
+    <button type="submit" class="submit-btn" id="submitBtn">
+      <span>💾 Submit to Google Sheet</span>
+    </button>
+  </form>
 
-          showStatus('Values detected! Verify and click Submit.', 'success');
-        } else {
-          showStatus('Could not auto-read text clearly. Please enter values manually.', 'info');
+  <!-- Status / Alert Message -->
+  <div class="alert" id="alertBox"></div>
+</div>
+
+<script>
+  // ================= CONFIGURATION =================
+  // 1. Paste your deployed Google Apps Script Web App URL here:
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzWPgRxFheWGHayziV2bC-s9t_8DuBmBJ_pLYeWmcpGD1brt1niIhnU-C-4HhLBgLnN2Q/exec';
+
+  // 2. Paste your Google Sheet URL here:
+  const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1Xg6JgwERsxoJTGi7pdK4AnxSkeoD7kPn-tBbesTHyTI/edit?usp=sharing';
+  document.getElementById('sheetLink').href = SPREADSHEET_URL;
+
+  // Global state
+  let currentBase64Image = null;
+  let currentMimeType = 'image/jpeg';
+  let currentFileName = '';
+
+  // DOM Elements
+  const imageInput = document.getElementById('imageInput');
+  const previewContainer = document.getElementById('previewContainer');
+  const imagePreview = document.getElementById('imagePreview');
+  const ocrStatus = document.getElementById('ocrStatus');
+  const ocrStatusText = document.getElementById('ocrStatusText');
+  const noField = document.getElementById('noField');
+  const dateField = document.getElementById('dateField');
+  const timeField = document.getElementById('timeField');
+  const sysField = document.getElementById('sysField');
+  const diaField = document.getElementById('diaField');
+  const pulseField = document.getElementById('pulseField');
+  const urlField = document.getElementById('urlField');
+  const bpForm = document.getElementById('bpForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const alertBox = document.getElementById('alertBox');
+
+  // Format Date to dd/mm/yyyy
+  function getFormattedDate(d = new Date()) {
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  // Format Time to hh:mm AM/PM
+  function getFormattedTime(d = new Date()) {
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 0 hour converts to 12
+    const strHours = String(hours).padStart(2, '0');
+    return `${strHours}:${minutes} ${ampm}`;
+  }
+
+  // Initialize Date, Time, and Next Sequence Number
+  function initDateTime() {
+    dateField.value = getFormattedDate();
+    timeField.value = getFormattedTime();
+  }
+
+  async function fetchNextSequenceNumber() {
+    try {
+      const response = await fetch(`${SCRIPT_URL}?action=getNextNo`);
+      const data = await response.json();
+      if (data && data.nextNo) {
+        noField.value = data.nextNo;
+      }
+    } catch (err) {
+      console.warn('Could not pre-fetch sequence number:', err);
+      noField.value = 'Auto';
+    }
+  }
+
+  // Handle Image Selection
+  imageInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    currentFileName = file.name;
+    currentMimeType = file.type || 'image/jpeg';
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      imagePreview.src = event.target.result;
+      previewContainer.style.display = 'block';
+
+      // Save raw base64 string (strip data:*/*;base64, prefix)
+      currentBase64Image = event.target.result.split(',')[1];
+
+      // Refresh timestamp on photo selection
+      initDateTime();
+
+      // Run OCR Extraction
+      await processImageWithOCR(event.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /**
+   * Pre-processes image via HTML Canvas to enhance digital LCD segments
+   * and runs Tesseract.js OCR
+   */
+  async function processImageWithOCR(imageSrc) {
+    ocrStatus.style.display = 'flex';
+    ocrStatusText.textContent = 'Optimizing image for LCD display recognition...';
+
+    const img = new Image();
+    img.src = imageSrc;
+    await img.decode();
+
+    // Canvas pre-processing (Grayscale + High Contrast Thresholding)
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = imgData.data;
+
+    // Convert to grayscale and apply contrast boost
+    for (let i = 0; i < d.length; i += 4) {
+      const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+      // Adaptive contrast thresholding
+      const val = gray < 135 ? 0 : 255;
+      d[i] = val;
+      d[i + 1] = val;
+      d[i + 2] = val;
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    ocrStatusText.textContent = 'Analyzing Blood Pressure digits...';
+
+    try {
+      const result = await Tesseract.recognize(canvas, 'eng', {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            ocrStatusText.textContent = `Reading monitor text... ${Math.round(m.progress * 100)}%`;
+          }
         }
-      } catch (err) {
-        showStatus('OCR processing timed out. Please input values manually.', 'info');
-      } finally {
-        submitBtn.disabled = false;
+      });
+
+      const extractedText = result.data.text;
+      console.log('OCR Raw Text:', extractedText);
+      parseBpReadings(extractedText);
+
+      ocrStatus.style.display = 'flex';
+      ocrStatus.style.background = '#dcfce7';
+      ocrStatus.style.color = '#166534';
+      ocrStatusText.textContent = 'Values extracted! Please verify fields before submitting.';
+    } catch (err) {
+      console.error('OCR Error:', err);
+      ocrStatus.style.background = '#fee2e2';
+      ocrStatus.style.color = '#991b1b';
+      ocrStatusText.textContent = 'Could not auto-read text clearly. Please manually type the numbers.';
+    }
+  }
+
+  /**
+   * Intelligently parses SYS, DIA, and PULSE from OCR output
+   */
+  function parseBpReadings(text) {
+    const cleaned = text.replace(/O/g, '0').replace(/o/g, '0').replace(/l/g, '1').replace(/I/g, '1');
+
+    // Strategy 1: Look for labeled blocks
+    const sysMatch = cleaned.match(/SYS(?:.*?)[^\d](\d{2,3})/i);
+    const diaMatch = cleaned.match(/DIA(?:.*?)[^\d](\d{2,3})/i);
+    const pulseMatch = cleaned.match(/PULSE(?:.*?)[^\d](\d{2,3})/i) || cleaned.match(/\/min(?:.*?)[^\d](\d{2,3})/i);
+
+    if (sysMatch) sysField.value = sysMatch[1];
+    if (diaMatch) diaField.value = diaMatch[1];
+    if (pulseMatch) pulseField.value = pulseMatch[1];
+
+    // Strategy 2: If standard labels weren't isolated, extract 2-3 digit numbers in top-to-bottom sequence
+    if (!sysField.value || !diaField.value || !pulseField.value) {
+      const numbers = cleaned.match(/\b\d{2,3}\b/g) || [];
+      const validNumbers = numbers
+        .map(Number)
+        .filter(n => n >= 40 && n <= 260); // Standard human physiological range
+
+      if (validNumbers.length >= 3) {
+        // Omron & standard BP monitors display top-to-bottom: SYS, DIA, PULSE
+        if (!sysField.value) sysField.value = validNumbers[0];
+        if (!diaField.value) diaField.value = validNumbers[1];
+        if (!pulseField.value) pulseField.value = validNumbers[2];
+      } else if (validNumbers.length === 2) {
+        if (!sysField.value) sysField.value = validNumbers[0];
+        if (!diaField.value) diaField.value = validNumbers[1];
       }
     }
+  }
 
-    // Form Submission
-    bpForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  // Handle Form Submission
+  bpForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-      if (!currentBase64) {
-        showStatus('Please upload or capture a photo first.', 'error');
-        return;
+    if (!currentBase64Image) {
+      showAlert('Please upload or snap a picture of the blood pressure monitor first.', 'error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<div class="spinner"></div> Submitting to Google Sheet...';
+    alertBox.style.display = 'none';
+
+    // Prepare JSON payload
+    const payload = {
+      date: dateField.value || getFormattedDate(),
+      time: timeField.value || getFormattedTime(),
+      systolic: sysField.value,
+      diastolic: diaField.value,
+      pulse: pulseField.value,
+      image: {
+        base64: currentBase64Image,
+        mimeType: currentMimeType,
+        filename: currentFileName || `BP_${Date.now()}.jpg`
       }
+    };
 
-      showStatus('Uploading image and writing to Google Sheet...', 'info', true);
-      submitBtn.disabled = true;
+    try {
+      // Content-Type text/plain avoids CORS preflight OPTIONS rejection in Apps Script
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(payload)
+      });
 
-      try {
-        const payload = {
-          action: 'save',
-          base64Data: currentBase64,
-          mimeType: currentMimeType,
-          sys: sysInput.value,
-          dia: diaInput.value,
-          pulse: pulseInput.value
-        };
+      const result = await response.json();
 
-        const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
+      if (result.status === 'success') {
+        noField.value = result.no;
+        urlField.value = result.fileUrl;
 
-        const result = await response.json();
+        showAlert(`✅ Data recorded successfully as Row #${result.no}! Picture uploaded to Drive.`, 'success');
 
-        if (result.status === 'success') {
-          showStatus(`Saved! Record #${result.record.no} recorded for ${result.record.date} ${result.record.time}.`, 'success');
-          bpForm.reset();
+        // Prepare for next entry after 4 seconds
+        setTimeout(() => {
+          fetchNextSequenceNumber();
+          initDateTime();
+          currentBase64Image = null;
           previewContainer.style.display = 'none';
-          uploadPrompt.textContent = '📷 Click to upload or snap a photo';
-          currentBase64 = null;
-        } else {
-          showStatus('Failed to record data: ' + result.message, 'error');
-        }
-      } catch (err) {
-        showStatus('Submission error: ' + err.message, 'error');
-      } finally {
-        submitBtn.disabled = false;
-      }
-    });
+          ocrStatus.style.display = 'none';
+          imageInput.value = '';
+          sysField.value = '';
+          diaField.value = '';
+          pulseField.value = '';
+          urlField.value = '';
+        }, 4000);
 
-    function showStatus(text, type, showSpinner = false) {
-      statusMessage.className = 'status-box ' + type;
-      if (showSpinner) {
-        statusMessage.innerHTML = '<span class="spinner"></span>' + text;
       } else {
-        statusMessage.textContent = text;
+        showAlert(`Error: ${result.message}`, 'error');
       }
+    } catch (err) {
+      console.error(err);
+      showAlert(`Network error: ${err.message}`, 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>💾 Submit to Google Sheet</span>';
     }
-  </script>
+  });
+
+  function showAlert(msg, type) {
+    alertBox.textContent = msg;
+    alertBox.className = `alert ${type}`;
+    alertBox.style.display = 'block';
+  }
+
+  // Initial Load
+  initDateTime();
+  fetchNextSequenceNumber();
+</script>
+
 </body>
 </html>

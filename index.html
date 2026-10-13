@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;BP Reading Data Form&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--primary: #2563eb;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--primary-hover: #1d4ed8;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--success: #16a34a;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--bg: #f8fafc;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--card-bg: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--text-main: #0f172a;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--text-muted: #64748b;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--border: #e2e8f0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body { background-color: var(--bg); color: var(--text-main); display: flex; justify-content: center; padding: 24px 16px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.container { width: 100%; max-width: 540px; background: var(--card-bg); border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); padding: 28px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>p.subtitle { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px; }</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.upload-zone {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 2px dashed #cbd5e1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 24px 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #f1f5f9;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>transition: all 0.2s ease;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.upload-zone:hover { border-color: var(--primary); background: #eff6ff; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.upload-zone input { display: none; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.upload-icon { font-size: 2rem; margin-bottom: 6px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.preview-box { display: none; margin-top: 14px; text-align: center; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.preview-box img { max-width: 100%; max-height: 220px; border-radius: 8px; border: 1px solid var(--border); object-fit: contain; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.status-badge {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 0.85rem;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 500;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.status-loading { background: #e0f2fe; color: #0369a1; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.status-error { background: #fee2e2; color: #b91c1c; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.status-success { background: #dcfce7; color: #15803d; display: block; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.form-group { margin-top: 16px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>label { display: block; font-size: 0.825rem; font-weight: 600; margin-bottom: 6px; color: #334155; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>input[type="number"], input[type="text"] {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 11px 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 0.95rem;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #fff;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>input[readonly] { background: #f8fafc; color: var(--text-muted); cursor: not-allowed; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.btn {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 13px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--primary);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #fff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>transition: background 0.2s ease;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.btn:hover { background: var(--primary-hover); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.btn:disabled { background: #94a3b8; cursor: not-allowed; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2&gt;BP Reading Data&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p class="subtitle"&gt;Upload or snap a photo of your BP device screen to extract and save measurements.&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Upload Section --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="upload-zone" onclick="document.getElementById('fileInput').click()"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="upload-icon"&gt;📷&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div style="font-weight: 600; color: #334155;"&gt;Take Photo or Upload Image&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;"&gt;JPG, PNG, HEIC from camera or gallery&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handleFile(this)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="previewBox" class="preview-box"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;img id="imagePreview" alt="BP Screen Preview"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="statusAlert" class="status-badge"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Form Section --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;form id="bpForm" onsubmit="handleFormSubmit(event)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label&gt;Systolic (mmHg) - [SYS]&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="systolic" placeholder="e.g. 120" required min="40" max="250"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label&gt;Diastolic (mmHg) - [DIA]&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="diastolic" placeholder="e.g. 80" required min="30" max="180"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label&gt;Pulse (BPM) - [PULSE / min]&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="pulse" placeholder="e.g. 72" required min="30" max="220"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label&gt;Uploaded Picture URL&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="fileUrl" readonly placeholder="URL generated automatically upon image upload"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button type="submit" id="submitBtn" class="btn" disabled&gt;Save to Google Sheet&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let uploadedFileUrl = '';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function handleFile(input) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (!input.files || !input.files[0]) return;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const file = input.files[0];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// Preview Image</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const reader = new FileReader();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>reader.onload = function(e) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('imagePreview').src = e.target.result;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('previewBox').style.display = 'block';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>showStatus('Uploading &amp; scanning BP monitor screen with OCR...', 'status-loading');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('submitBtn').disabled = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>google.script.run</p>
+<p class="p1"><span class="Apple-converted-space">          </span>.withSuccessHandler(onOcrSuccess)</p>
+<p class="p1"><span class="Apple-converted-space">          </span>.withFailureHandler(onOcrFailure)</p>
+<p class="p1"><span class="Apple-converted-space">          </span>.processUploadedImage(e.target.result, file.name, file.type);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p1"><span class="Apple-converted-space">      </span>reader.readAsDataURL(file);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function onOcrSuccess(res) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (!res.success) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>showStatus('Error processing image: ' + res.error, 'status-error');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>uploadedFileUrl = res.fileUrl;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('fileUrl').value = uploadedFileUrl;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// Populate parsed fields</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (res.extracted.systolic) document.getElementById('systolic').value = res.extracted.systolic;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (res.extracted.diastolic) document.getElementById('diastolic').value = res.extracted.diastolic;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (res.extracted.pulse) document.getElementById('pulse').value = res.extracted.pulse;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>showStatus('Image processed! Verify or adjust readings, then save.', 'status-success');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('submitBtn').disabled = false;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function onOcrFailure(err) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>showStatus('Failed to connect to Google Apps Script: ' + err, 'status-error');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function handleFormSubmit(e) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const submitBtn = document.getElementById('submitBtn');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>submitBtn.disabled = true;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>showStatus('Submitting record to Google Sheet...', 'status-loading');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const payload = {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>systolic: document.getElementById('systolic').value,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>diastolic: document.getElementById('diastolic').value,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pulse: document.getElementById('pulse').value,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>fileUrl: uploadedFileUrl</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>google.script.run</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.withSuccessHandler(function(res) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (res.success) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>showStatus(`Successfully saved! Record #${res.nextNo} created.`, 'status-success');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('bpForm').reset();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('previewBox').style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>showStatus('Error saving data: ' + res.error, 'status-error');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>submitBtn.disabled = false;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>})</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.withFailureHandler(function(err) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>showStatus('Error: ' + err, 'status-error');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>submitBtn.disabled = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>})</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.submitBPRecord(payload);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function showStatus(msg, className) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const alert = document.getElementById('statusAlert');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>alert.className = 'status-badge ' + className;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>alert.textContent = msg;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
